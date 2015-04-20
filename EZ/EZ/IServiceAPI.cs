@@ -11,6 +11,8 @@ namespace EZ
         void SetReservation(string email, string stylist, string service, string sdate, string edate, string year);
         void CancelReservation(string email);
         DataTable FindReservations(string email);
+        DataTable DisplayServices();
+        DataTable GetStylistNames();
 
     }
 }

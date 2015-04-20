@@ -26,7 +26,7 @@ namespace EZ
             SqlCommand command = new SqlCommand(query, dbConnection);
             command.ExecuteNonQuery();
 
-            string query2 = "INSERT INTO Customers VALUES ('" + lastName + "','" + firstName + "','" + email + "','" + ' ' + "', '" + phonenumber + "');";
+            string query2 = "INSERT INTO Customers VALUES ('" + lastName + "','" + firstName + "','" + email + "','" +  0  + "', '" + phonenumber + "');";
 
 
             SqlCommand command2 = new SqlCommand(query2, dbConnection);
@@ -146,6 +146,37 @@ namespace EZ
 
         }
 
+        public DataTable GetStylistNames()
+        {
+
+            //declare table name - Customers
+            DataTable stylistTable = new DataTable();
+            stylistTable.Columns.Add(new DataColumn("FirstName", typeof(String)));
+            stylistTable.Columns.Add(new DataColumn("LastName", typeof(String)));
+
+            if (dbConnection.State.ToString() == "Closed")
+            {
+                dbConnection.Open();
+            }
+
+            string query = "SELECT FirstName,LastName FROM StylistProfileInfoes'";
+
+            SqlCommand command = new SqlCommand(query, dbConnection);
+            SqlDataReader reader = command.ExecuteReader();
+
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    stylistTable.Rows.Add(reader["FirstName"], reader["LastName"]);
+                }
+            }
+
+            reader.Close();
+            dbConnection.Close();
+            return stylistTable;
+        }
+
         public DataTable FindReservations(string email)
         {
 
@@ -155,5 +186,17 @@ namespace EZ
 
             return dt;
         }
+
+        public DataTable DisplayServices()
+        {
+             DataTable dt = new DataTable();
+
+            dt = EZ.EZSnipsAccess.GetServices();
+
+            return dt;
+       }
+
+      
+
     }
 }
