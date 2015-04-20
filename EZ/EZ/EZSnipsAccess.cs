@@ -47,5 +47,30 @@ namespace EZ
             }
             return result;
         }
+
+        public static DataTable GetServices()
+        {
+            DataTable result = new DataTable();
+            Conn = getConnection();
+            using (SqlCommand command = Conn.CreateCommand())
+            {
+                command.CommandTimeout = 0;
+                command.CommandType = CommandType.StoredProcedure;
+
+                command.CommandText = "get_services_sp";         //"get_services_sp" is stored proc
+                using (SqlDataAdapter adapter = new SqlDataAdapter())
+                {
+                    adapter.SelectCommand = command;
+
+                    if (command.Connection.State != ConnectionState.Open)
+                        command.Connection.Open();
+
+                    adapter.Fill(result);
+
+                    command.Connection.Close();
+                }
+            }
+            return result;
+        }
     }
 }
