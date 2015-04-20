@@ -19,6 +19,8 @@ namespace EZ
         {
             Conn = new SqlConnection(connectionString);
             return Conn;
+
+
         }
 
         public static DataTable GetReservations(string email)
