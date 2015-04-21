@@ -74,5 +74,29 @@ namespace EZ
             }
             return result;
         }
+
+
+        public static void InsertReservation(int userid, int tempid, int serviceid, int stylistid, DateTime startDate, DateTime endDate)
+        {
+            DataTable result = new DataTable();
+            Conn = getConnection();
+            using (SqlCommand command = Conn.CreateCommand())
+            {
+                command.CommandTimeout = 0;
+                command.CommandType = CommandType.StoredProcedure;
+
+                command.Parameters.AddRange(new SqlParameter[] {        //params for stored proc
+                        new SqlParameter("@userid", userid),
+                        new SqlParameter("@tempid", tempid),
+                        new SqlParameter("@serviceid", serviceid),
+			new SqlParameter("@stylistid", stylistid),
+			new SqlParameter("@rStart", startDate),
+			new SqlParameter("@rEnd", endDate)
+                    });
+                command.CommandText = "Insert_Reservation_sp";         //"Insert_Reservation_sp" is stored proc
+                
+                command.Connection.Close();
+                }
+        }
     }
 }

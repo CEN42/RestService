@@ -124,6 +124,8 @@ namespace EZ
 
             dbConnection.Close();
 
+            EZ.EZSnipsAccess.InsertReservation(userid, 1, serviceid, stylistid, date1, date2);
+
         }
 
         public void CancelReservation(string email)
@@ -159,7 +161,7 @@ namespace EZ
                 dbConnection.Open();
             }
 
-            string query = "SELECT FirstName,LastName FROM StylistProfileInfoes'";
+            string query = "SELECT FirstName,LastName FROM StylistProfileInfoes;";
 
             SqlCommand command = new SqlCommand(query, dbConnection);
             SqlDataReader reader = command.ExecuteReader();
@@ -189,12 +191,34 @@ namespace EZ
 
         public DataTable DisplayServices()
         {
-             DataTable dt = new DataTable();
+            //declare table name - Customers
+            DataTable serviceTable = new DataTable();
+            serviceTable.Columns.Add(new DataColumn("servicetitle", typeof(String)));
+            serviceTable.Columns.Add(new DataColumn("amount", typeof(Double)));
 
-            dt = EZ.EZSnipsAccess.GetServices();
+            if (dbConnection.State.ToString() == "Closed")
+            {
+                dbConnection.Open();
+            }
 
-            return dt;
-       }
+            string query = "SELECT servicetitle, amount FROM Services;";
+
+            SqlCommand command = new SqlCommand(query, dbConnection);
+            SqlDataReader reader = command.ExecuteReader();
+
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    serviceTable.Rows.Add(reader["servicetitle"], reader["amount"]);
+                }
+            }
+
+            reader.Close();
+            dbConnection.Close();
+            return serviceTable;
+
+        }
 
       
 
