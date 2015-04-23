@@ -101,7 +101,7 @@ namespace EZ
             }
          
 
-            string query1 = "SELECT userid from Customers where email= 'n';";
+            string query1 = "SELECT userid from Customers where email='" + email + "';";
             SqlCommand cmd = new SqlCommand(query1, dbConnection);
             Int32 userid = Convert.ToInt32(cmd.ExecuteScalar());
 
