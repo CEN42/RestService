@@ -8,7 +8,7 @@ namespace EZ
         DataTable GetUserDetails(string email);
         bool UserAuthentication(string email, string passsword);
 
-        void SetReservation(string email, string stylist, string service, string sdate, string edate, string year);
+        void SetReservation(string email, string stylist, string service, string fdate, string edate);
         void CancelReservation(string email);
         DataTable FindReservations(string email);
         DataTable DisplayServices();

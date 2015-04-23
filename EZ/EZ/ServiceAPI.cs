@@ -93,39 +93,34 @@ namespace EZ
 
         }
 
-        public void SetReservation(string email, string stylist, string service, string sdate, string edate, string year)
+        public void SetReservation(string email, string stylist, string service, string fdate, string edate)
         {
             if (dbConnection.State.ToString() == "Closed")
             {
                 dbConnection.Open();
             }
+         
 
-            SqlCommand cmd = new SqlCommand();
-            cmd.CommandText = "SELECT userid from Customers  where email='" + email + "';";
-            Int32 userid = (Int32)cmd.ExecuteScalar();
+            string query1 = "SELECT userid from Customers where email= 'n';";
+            SqlCommand cmd = new SqlCommand(query1, dbConnection);
+            Int32 userid = Convert.ToInt32(cmd.ExecuteScalar());
 
-            cmd.CommandText = "SELECT id from StylistProfileInfoes where FirstName='" + stylist + "';";
-            Int32 stylistid = (Int32)cmd.ExecuteScalar();
+            string query2 = "SELECT id from StylistProfileInfoes where FirstName='" + stylist + "';";
+            SqlCommand cm = new SqlCommand(query2, dbConnection);
+            Int32 stylistid = Convert.ToInt32(cm.ExecuteScalar());
 
-            cmd.CommandText = "SELECT serviceid from StylistProfileInfoes where servicedesc='" + service + "';";
-            Int32 serviceid = (Int32)cmd.ExecuteScalar();
+            string query3 = "SELECT serviceid from Services where servicetitle='" + service + "';";
+            SqlCommand cms = new SqlCommand(query3, dbConnection);
+            Int32 serviceid = Convert.ToInt32(cms.ExecuteScalar());
 
-            DateTime date1;
-            DateTime.TryParseExact(sdate, new string[] { "yyyy/MM/DD/  HH:mm" }, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out date1);
-
-            DateTime date2;
-            DateTime.TryParseExact(edate, new string[] { "yyyy/MM/DD/  HH:mm" }, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out date2);
-
-
-            string query = "INSERT INTO Reservations VALUES('" + userid + "','" + 2 + "','" + date1 + "','" + date2 + "','" + serviceid + "','" + stylistid + "');";
-
+             string query = "INSERT INTO Reservations VALUES('" + userid + "','" + 1 + "','" + Convert.ToDateTime(fdate) + "','" + Convert.ToDateTime(edate) + "','" + serviceid + "','" + stylistid + "'); ";
             SqlCommand command = new SqlCommand(query, dbConnection);
             command.ExecuteNonQuery();
+           
 
             dbConnection.Close();
 
-            EZ.EZSnipsAccess.InsertReservation(userid, 1, serviceid, stylistid, date1, date2);
-
+            
         }
 
         public void CancelReservation(string email)
@@ -135,11 +130,11 @@ namespace EZ
                 dbConnection.Open();
             }
 
-            SqlCommand cmd = new SqlCommand();
-            cmd.CommandText = "SELECT userid from Customers  where email='" + email + "';";
-            Int32 userid = (Int32)cmd.ExecuteScalar();
+            string query1 = "SELECT userid from Customers  where email='" + email + "';";
+            SqlCommand cmd = new SqlCommand(query1, dbConnection);
+            Int32 userid = Convert.ToInt32(cmd.ExecuteScalar()); ;
 
-            string query = " DELETE reser_id FROM Reservations where userid ='" + userid + "';";
+            string query = " DELETE FROM Reservations where userid ='" + userid + "';";
 
             SqlCommand command = new SqlCommand(query, dbConnection);
             command.ExecuteNonQuery();
@@ -182,11 +177,43 @@ namespace EZ
         public DataTable FindReservations(string email)
         {
 
-            DataTable dt = new DataTable();
+            if (dbConnection.State.ToString() == "Closed")
+            {
+                dbConnection.Open();
+            }
 
-            dt = EZ.EZSnipsAccess.GetReservations(email);
+            DataTable result = new DataTable();
+           // Conn = getConnection();
+            using (SqlCommand command = dbConnection.CreateCommand())
+            {
+                command.CommandTimeout = 0;
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.AddRange(new SqlParameter[] {        //params for stored procs
+                        new SqlParameter("@Email", email),
+                    });
+                command.CommandText = "cGetReservations_sp";         //"ManagerGetReservations" is stored proc
+                using (SqlDataAdapter adapter = new SqlDataAdapter())
+                {
+                    adapter.SelectCommand = command;
 
-            return dt;
+                    if (command.Connection.State != ConnectionState.Open)
+                        command.Connection.Open();
+
+                    adapter.Fill(result);
+
+                    command.Connection.Close();
+                }
+            }
+            dbConnection.Close();
+
+            foreach(DataRow dr in result.Rows) 
+            {
+                if(dr["resStart"] != DBNull.Value)
+                {
+                    dr["resStart"] = Convert.ToDateTime(dr["resStart"]).ToString("MM-dd-yyyy hh:mm tt");
+                }
+            }
+            return result;
         }
 
         public DataTable DisplayServices()

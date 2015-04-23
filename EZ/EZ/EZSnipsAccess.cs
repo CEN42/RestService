@@ -34,7 +34,7 @@ namespace EZ
                 command.Parameters.AddRange(new SqlParameter[] {        //params for stored procs
                         new SqlParameter("@Email", email),
                     });
-                command.CommandText = "mngr_GetReservations_sp";         //"ManagerGetReservations" is stored proc
+                command.CommandText = "cGetReservations_sp";         //"ManagerGetReservations" is stored proc
                 using (SqlDataAdapter adapter = new SqlDataAdapter())
                 {
                     adapter.SelectCommand = command;
